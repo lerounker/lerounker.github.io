@@ -1,4 +1,4 @@
-# Le Rounker
+# **Le Rounker**
 
 ## Bienvenue
 Tout d'abord, bienvenue sur le Github officiel du *Rounker*, nous vous souhaitons un agréable moment en lisant les "quelques" regles énoncées ci-dessous.
