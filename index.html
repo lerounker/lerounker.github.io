@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>The Discord Enhancement Project - BetterDiscord</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="BetterDiscord extends the functionality of DiscordApp by enhancing it with new features.">
+  <meta name="theme-color" content="#3a71c1">
+  <meta name="keywords"
+    content="Discord, BetterDiscord, Better Discord, Discord Mod, Discord Themes, Discord Plugins, Discord Extensions, Discord Client Mod, Discord Hacks">
+  <meta name="author" content="BetterDiscord">
+  <link rel="manifest" href="/resources/favicon/manifest.json">
+  <link rel="stylesheet" href="asset//css/normalize.css" />
+  <link rel="stylesheet" href="asset//css/site.css" />
+  <link rel="preload" as="font" type="font/woff2" href="/resources/fonts/Inter-Medium.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/resources/fonts/Inter-SemiBold.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/resources/fonts/Inter-Bold.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff" href="/resources/fonts/Inter-Medium.woff" crossorigin />
+  <link rel="preload" as="font" type="font/woff" href="/resources/fonts/Inter-SemiBold.woff" crossorigin />
+  <link rel="preload" as="font" type="font/woff" href="/resources/fonts/Inter-Bold.woff" crossorigin />
+
+  <script src="asset//v3/live/ad-manager.min.js" type="text/javascript" data-site-id="60f6fbf4bd5b6c54cf47a3c9"
+    data-mode="scan" async></script>
+
+
+
+  <script defer src="asset//js/vendor/tagify.min.js"></script>
+  <script defer src="asset//js/vendor/OverlayScrollbars.min.js"></script>
+  <script defer src="asset//js/vendor/highlight.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      hljs.initHighlightingOnLoad();
+    });
+  </script>
+  <script>    window.Endpoints = {
+      store: {
+        addons: "https://api.betterdiscord.app/latest/store/addons",
+        themes: "https://api.betterdiscord.app/latest/store/themes",
+        plugins: "https://api.betterdiscord.app/latest/store/plugins",
+      },
+      moderation: {
+        verifyUser: "https://betterdiscord.app/latest/moderation/verify-user", // payload: userId
+      },
+      utils: {
+        deadAvatar: "https://api.betterdiscord.app/latest/utils/dead-avatar", // payload: oldAvatarUrl
+      }
+    };
+
+    function wrappedFetch(url, options) {
+      options.referrerPolicy = "strict-origin-when-cross-origin";
+      options.headers = Object.assign(Object(options.headers), {
+        "Content-Type": "application/json;charset=UTF-8"
+      });
+
+      // custom options field
+      if (options.payload) {
+        options.body = JSON.stringify(options.payload);
+      }
+      delete options.payload;
+
+      let abortController = new AbortController();
+      options.signal = abortController.signal;
+      let promise = (async () => {
+        try {
+          let response = await fetch(url, options);
+          let { status, statusText } = response;
+          if (200 <= status || status <= 299 || status === 301 || status === 302) {
+            return response;
+          }
+          throw new Error("back-end response: " + status + " " + statusText);
+        } catch (err) {
+          throw err;
+        }
+      })();
+      promise.abort = () => abortController.abort();
+      return promise;
+    }
+
+    function wrapFetch(apiNamespace, endpointName, method, auth) {
+      const url = apiNamespace[endpointName];
+      Object.assign(apiNamespace, {
+        [endpointName](payload) {
+          return wrappedFetch(url, {
+            payload,
+            method,
+            credentials: auth && "include" || void 0
+          });
+        },
+      });
+    }
+
+    wrapFetch(Endpoints.store, "addons", "GET");
+    wrapFetch(Endpoints.store, "themes", "GET");
+    wrapFetch(Endpoints.store, "plugins", "GET");
+    wrapFetch(Endpoints.moderation, "verifyUser", "POST", true);
+    wrapFetch(Endpoints.utils, "deadAvatar", "PATCH");
+  </script>
+  <script defer src="asset//js/site.js"></script>
+
+  <script type="text/javascript">
+    var _paq = window._paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+    _paq.push(["setCookieDomain", "*.betterdiscord.app"]);
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function () {
+      var u = "https://betterdiscord.app:8443/";
+      _paq.push(['setTrackerUrl', u + 'matomo.php']);
+      _paq.push(['setSiteId', '1']);
+      var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+      g.type = 'text/javascript'; g.async = true; g.src = u + 'matomo.js'; s.parentNode.insertBefore(g, s);
+    })();
+  </script>
+
+</head>
+
+<body class="" style="height: auto;">
+
+  <div class="vm-placement" data-id="60f82387ffc37172cbbc0201" style="display:none"></div>
+
+  <script src="asset//js/navbar.js" defer></script>
+  <script>
+
+    async function avatarExpired(img) {
+      img.onerror = null;
+
+      img.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxNiAxNicgZmlsbD0nI2JmYzRjOScgd2lkdGg9JzE2JyBoZWlnaHQ9JzE2Jz48cGF0aCBmaWxsLXJ1bGU9J2V2ZW5vZGQnIGQ9J00xMC41IDVhMi41IDIuNSAwIDExLTUgMCAyLjUgMi41IDAgMDE1IDB6bS4wNjEgMy4wNzNhNCA0IDAgMTAtNS4xMjMgMCA2LjAwNCA2LjAwNCAwIDAwLTMuNDMxIDUuMTQyLjc1Ljc1IDAgMDAxLjQ5OC4wNyA0LjUgNC41IDAgMDE4Ljk5IDAgLjc1Ljc1IDAgMTAxLjQ5OC0uMDcgNi4wMDUgNi4wMDUgMCAwMC0zLjQzMi01LjE0MnonIHN0eWxlPScgdHJhbnNmb3JtOiBzY2FsZSguNSk7IHRyYW5zZm9ybS1vcmlnaW46IGNlbnRlcjsgJy8+PC9zdmc+';
+
+      try {
+        img.src = await Endpoints.utils.deadAvatar(img.src);
+      } catch (err) {
+      }
+    }
+  </script>
+  <header id="navbar" class="page-section flex-container align-center">
+    <div class="page-section-inner">
+      <a class="navbar-logo-container" href="https://betterdiscord.app//">
+        <img loading="lazy" class="navbar-logo hide-mobile" src="logo_large.png" alt="BetterDiscord logo" />
+        <img loading="lazy" class="navbar-logo small" src="logo_small.png" alt="BetterDiscord logo" />
+      </a>
+      <nav id="navbar-nav-items" class="flex-container align-center" data-toggle="affix">
+        <a class="nav-item" href="https://betterdiscord.app//themes">Themes</a>
+        <a class="nav-item" href="https://betterdiscord.app//plugins">Plugins</a>
+        <a class="nav-item" href="https://betterdiscord.app//developers">Devs</a>
+        <a class="nav-item" href="https://betterdiscord.app//merch">Merch</a>
+        <a class="nav-item" target="_blank" href="https://docs.betterdiscord.app/">Docs</a>
+        <form action="/auth/discord" method="post">
+          <input type="hidden" name="ReturnUrl" value="/" />
+          <button href="#" type="submit" class="btn btn-secondary">
+            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 23 23" width="16" height="16">
+              <path fill-rule="evenodd"
+                d="M20.222 0c1.406 0 2.54 1.137 2.607 2.475V24l-2.677-2.273l-1.47-1.338l-1.604-1.398l.67 2.205H3.71c-1.402 0-2.54-1.065-2.54-2.476V2.48C1.17 1.142 2.31.003 3.715.003h16.5L20.222 0zm-6.118 5.683h-.03l-.202.2c2.073.6 3.076 1.537 3.076 1.537c-1.336-.668-2.54-1.002-3.744-1.137c-.87-.135-1.74-.064-2.475 0h-.2c-.47 0-1.47.2-2.81.735c-.467.203-.735.336-.735.336s1.002-1.002 3.21-1.537l-.135-.135s-1.672-.064-3.477 1.27c0 0-1.805 3.144-1.805 7.02c0 0 1 1.74 3.743 1.806c0 0 .4-.533.805-1.002c-1.54-.468-2.14-1.404-2.14-1.404s.134.066.335.2h.06c.03 0 .044.015.06.03v.006c.016.016.03.03.06.03c.33.136.66.27.93.4a8.18 8.18 0 0 0 1.8.536c.93.135 1.996.2 3.21 0c.6-.135 1.2-.267 1.8-.535c.39-.2.87-.4 1.397-.737c0 0-.6.936-2.205 1.404c.33.466.795 1 .795 1c2.744-.06 3.81-1.8 3.87-1.726c0-3.87-1.815-7.02-1.815-7.02c-1.635-1.214-3.165-1.26-3.435-1.26l.056-.02zm.168 4.413c.703 0 1.27.6 1.27 1.335c0 .74-.57 1.34-1.27 1.34c-.7 0-1.27-.6-1.27-1.334c.002-.74.573-1.338 1.27-1.338zm-4.543 0c.7 0 1.266.6 1.266 1.335c0 .74-.57 1.34-1.27 1.34c-.7 0-1.27-.6-1.27-1.334c0-.74.57-1.338 1.27-1.338z" />
+            </svg>
+            <span>Connect</span>
+          </button>
+        </form>
+      </nav>
+    </div>
+  </header>
+  <main id="main-page-content">
+    <script src="asset//js/home.js" defer></script>
+    <script src="asset//js/vendor/countUp.min.js"></script>
+    <section id="home-hero-section" class="page-section">
+      <div class="page-section-inner">
+        <div id="hero-top-container" class="flex-container align-center justify-center direction-column">
+          <h1 class="text-center title">La meilleure communauté de Discord</h1>
+          <p class="text-center title-description">𝕷𝖊 𝕽𝖔𝖚𝖓𝖐𝖊𝖗 offre à ses membres une expérience incroyable, de
+            nouvelle rencontre et des fonctionnalités de ouf.</p>
+          <div class="btn-container">
+            <button class="btn btn-primary" id="hero-download-button">
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 150 100" width="32" height="32">
+                <defs>
+                  <style>
+                    .cls-1 {
+                      fill: #fff;
+                    }
+                  </style>
+                </defs>
+                <g id="图层_2" data-name="图层 2">
+                  <g id="Discord_Logos" data-name="Discord Logos">
+                    <g id="Discord_Logo_-_Large_-_White" data-name="Discord Logo - Large - White">
+                      <path class="cls-1"
+                        d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
+                    </g>
+                  </g>
+                </g>
+              </svg>
+              <span>Rejoindre</span>
+            </button>
+            <button class="btn btn-secondary" id="hero-community-button">
+              <img class="btn-icon" style="height: 18px;" src="rules.png"></img>
+              <span>Règlement</span>
+            </button>
+          </div>
+          <div class="downloads-container">
+            <strong id="member-count">31</strong>
+            <span> Membres</span>
+          </div>
+        </div>
+        <div id="hero-bottom-container" class="flex-container align-center justify-center hide-mobile">
+          <img loading="lazy" src="https://betterdiscord.app//resources/ui/home.webp" class="home-img" alt="Home" />
+        </div>
+      </div>
+    </section>
+    <section id="home-features-section" class="page-section">
+      <div class="page-section-inner">
+        <div class="features-view">
+          <div class="feature" id="feature-1">
+            <div class="theme-showcase hide-mobile">
+              <div class="theme-showcase-inner">
+                <div class="crossfade-image"></div>
+                <div class="crossfade-image"></div>
+                <div class="crossfade-image"></div>
+                <div class="crossfade-image"></div>
+                <div class="crossfade-image"></div>
+                <div class="crossfade-image"></div>
+                <div class="crossfade-image"></div>
+                <div class="crossfade-image"></div>
+                <div class="crossfade-image"></div>
+                <div class="crossfade-image"></div>
+                <div class="guilds-column"></div>
+                <div class="sidebar-column">
+                  <div class="sidebar-header"></div>
+                  <div class="user-container"></div>
+                </div>
+                <div class="base">
+                  <div class="toolbar"></div>
+                  <div class="chat">
+                    <div class="chat-content"></div>
+                    <div class="sidebar-column"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="feature-info">
+              <h1 class="title">Communauté</h1>
+              <p class="title-description">Notre communauté est tolérente en chaleureuse. Rejoignez-nous et prenez part
+                au multiples débats quotidiens.</p>
+              <a class="btn btn-secondary" href="https://betterdiscord.app//themes">
+                <span>Voir les membres</span>
+              </a>
+            </div>
+          </div>
+          <div class="feature" id="feature-2">
+            <div class="feature-info">
+              <h1 class="title">Bots</h1>
+              <p class="title-description">𝕷𝖊 𝕽𝖔𝖚𝖓𝖐𝖊𝖗 offre le meilleur bot de tout les temps aka <b>Rick
+                  Astley#1697</b> faits sur mesure par nos développeurs de talent</p>
+              <a class="btn btn-secondary" href="https://betterdiscord.app//plugins">
+                <span>Voir les commandes</span>
+              </a>
+            </div>
+            <div class="plugin-showcase hide-mobile">
+              <div class="plugin-showcase-inner">
+                <svg class="plugin-showcase-logo" xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink" width="256px" height="293px" viewbox="0 0 256 293"
+                  preserveaspectratio="xMidYMid">
+                  <path
+                    d="M226.011429,0 L29.9885714,0 C13.4582857,0 0,13.4582857 0,30.1348571 L0,227.913143 C0,244.589714 13.4582857,258.048 29.9885714,258.048 L195.876571,258.048 L188.123429,230.985143 L206.848,248.393143 L224.548571,264.777143 L256,292.571429 L256,30.1348571 C256,13.4582857 242.541714,0 226.011429,0 Z M169.545143,191.049143 C169.545143,191.049143 164.278857,184.758857 159.890286,179.2 C179.053714,173.787429 186.368,161.792 186.368,161.792 C180.370286,165.741714 174.665143,168.521143 169.545143,170.422857 C162.230857,173.494857 155.209143,175.542857 148.333714,176.713143 C134.290286,179.346286 121.417143,178.614857 110.445714,176.566857 C102.107429,174.957714 94.9394286,172.617143 88.9417143,170.276571 C85.5771429,168.96 81.92,167.350857 78.2628571,165.302857 C77.824,165.010286 77.3851429,164.864 76.9462857,164.571429 C76.6537143,164.425143 76.5074286,164.278857 76.3611429,164.132571 C73.728,162.669714 72.2651429,161.645714 72.2651429,161.645714 C72.2651429,161.645714 79.2868571,173.348571 97.8651429,178.907429 C93.4765714,184.466286 88.064,191.049143 88.064,191.049143 C55.7348571,190.025143 43.4468571,168.813714 43.4468571,168.813714 C43.4468571,121.709714 64.512,83.5291429 64.512,83.5291429 C85.5771429,67.7302857 105.618286,68.1691429 105.618286,68.1691429 L107.081143,69.9245714 C80.7497143,77.5314286 68.608,89.088 68.608,89.088 C68.608,89.088 71.8262857,87.3325714 77.2388571,84.8457143 C92.8914286,77.9702857 105.325714,76.0685714 110.445714,75.6297143 C111.323429,75.4834286 112.054857,75.3371429 112.932571,75.3371429 C121.856,74.1668571 131.949714,73.8742857 142.482286,75.0445714 C156.379429,76.6537143 171.300571,80.7497143 186.514286,89.088 C186.514286,89.088 174.957714,78.1165714 150.089143,70.5097143 L152.137143,68.1691429 C152.137143,68.1691429 172.178286,67.7302857 193.243429,83.5291429 C193.243429,83.5291429 214.308571,121.709714 214.308571,168.813714 C214.308571,168.813714 201.874286,190.025143 169.545143,191.049143 Z M101.522286,122.733714 C93.184,122.733714 86.6011429,130.048 86.6011429,138.971429 C86.6011429,147.894857 93.3302857,155.209143 101.522286,155.209143 C109.860571,155.209143 116.443429,147.894857 116.443429,138.971429 C116.589714,130.048 109.860571,122.733714 101.522286,122.733714 M154.916571,122.733714 C146.578286,122.733714 139.995429,130.048 139.995429,138.971429 C139.995429,147.894857 146.724571,155.209143 154.916571,155.209143 C163.254857,155.209143 169.837714,147.894857 169.837714,138.971429 C169.837714,130.048 163.254857,122.733714 154.916571,122.733714"
+                    fill="#ffffff" />
+                </svg>
+                <svg class="plugin-showcase-logo plugin-showcase-plus" xmlns="http://www.w3.org/2000/svg" width="24"
+                  height="24" fill="currentColor" viewbox="0 0 24 24">
+                  <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" />
+                </svg>
+                <svg class="plugin-showcase-logo" xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="500" height="500"
+                  viewBox="0 0 500 500" xml:space="preserve">
+                  <g transform="matrix(3.99 0 0 3.99 1039.02 306.67)">
+                    <g vector-effect="non-scaling-stroke">
+                      <g transform="matrix(1 0 0 1 -212.46 -28.73)" id="dR0pMIyj4nWmjIBJMuhqK">
+                        <linearGradient id="SVGID_4" gradientUnits="userSpaceOnUse"
+                          gradientTransform="matrix(0.56 0 0 0.57 -9.4 -5.3)" x1="26.65" y1="20.6" x2="135.7"
+                          y2="114.4">
+                          <stop offset="0%" style="stop-color:rgb(90,159,212);stop-opacity: 1" />
+                          <stop offset="100%" style="stop-color:rgb(48,105,152);stop-opacity: 1" />
+                        </linearGradient>
+                        <path
+                          style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: url(#SVGID_4); fill-rule: nonzero; opacity: 1;"
+                          vector-effect="non-scaling-stroke" transform=" translate(-46.74, -47.94)"
+                          d="M 60.51 6.398 C 55.926 6.4193 51.549 6.8102 47.699999999999996 7.492 C 36.349999999999994 9.497 34.28999999999999 13.692 34.28999999999999 21.432 L 34.28999999999999 31.652 L 61.099999999999994 31.652 L 61.099999999999994 35.058 L 34.28999999999999 35.058 L 24.22999999999999 35.058 C 16.437999999999988 35.058 9.60999999999999 39.742 7.47999999999999 48.647999999999996 C 5.01799999999999 58.858 4.90899999999999 65.238 7.47999999999999 75.898 C 9.38599999999999 83.836 13.93799999999999 89.488 21.72999999999999 89.488 L 30.94899999999999 89.488 L 30.94899999999999 77.238 C 30.94899999999999 68.388 38.605999999999995 60.578 47.69899999999999 60.578 L 74.47899999999998 60.578 C 81.93399999999998 60.578 87.88899999999998 54.440000000000005 87.88899999999998 46.958000000000006 L 87.88899999999998 21.428000000000004 C 87.88899999999998 14.162000000000004 81.75899999999999 8.708000000000004 74.47899999999998 7.488000000000005 C 69.87299999999999 6.721300000000005 65.09399999999998 6.373000000000005 60.508999999999986 6.394000000000005 z M 46.01 14.616999999999999 C 48.78 14.616999999999999 51.041 16.916 51.041 19.741999999999997 C 51.040997999999995 22.557999999999996 48.778999999999996 24.836 46.01 24.836 C 43.230999999999995 24.835998999999997 40.979 22.558999999999997 40.979 19.741999999999997 C 40.978999 16.915999999999997 43.231 14.616999999999997 46.01 14.616999999999997 z"
+                          stroke-linecap="round" />
+                      </g>
+                      <g transform="matrix(1 0 0 1 -183.67 0.25)" id="yi38xsz8y0Qx6ij7dpGdB">
+                        <linearGradient id="SVGID_5" gradientUnits="userSpaceOnUse"
+                          gradientTransform="matrix(0.56 0 0 0.57 -9.4 -5.3)" x1="151" y1="192.4" x2="112" y2="137.3">
+                          <stop offset="0%" style="stop-color:rgb(255,212,59);stop-opacity: 1" />
+                          <stop offset="100%" style="stop-color:rgb(255,232,115);stop-opacity: 1" />
+                        </linearGradient>
+                        <path
+                          style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: url(#SVGID_5); fill-rule: nonzero; opacity: 1;"
+                          vector-effect="non-scaling-stroke" transform=" translate(-75.53, -76.91)"
+                          d="M 91.23 35.05 L 91.23 46.959999999999994 C 91.23 56.190999999999995 83.40400000000001 63.959999999999994 74.48 63.959999999999994 L 47.7 63.959999999999994 C 40.364000000000004 63.959999999999994 34.290000000000006 70.238 34.290000000000006 77.58 L 34.290000000000006 103.11 C 34.290000000000006 110.376 40.60900000000001 114.65 47.7 116.73 C 56.187000000000005 119.226 64.33 119.677 74.48 116.73 C 81.23 114.77600000000001 87.89 110.842 87.89 103.11 L 87.89 92.89 L 61.11 92.89 L 61.11 89.484 L 87.89 89.484 L 101.3 89.484 C 109.092 89.484 112 84.04899999999999 114.71 75.89399999999999 C 117.509 67.49499999999999 117.39 59.41399999999999 114.71 48.64399999999999 C 112.78399999999999 40.88699999999999 109.106 35.05399999999999 101.3 35.05399999999999 L 91.24 35.05399999999999 z M 76.17 99.71 C 78.949 99.710003 81.20100000000001 101.987 81.20100000000001 104.80399999999999 C 81.20099800000001 107.62999999999998 78.94900000000001 109.92899999999999 76.17 109.92899999999999 C 73.4 109.92899999999999 71.139 107.62999999999998 71.139 104.80399999999999 C 71.13900199999999 101.98799999999999 73.401 99.71 76.17 99.71 z"
+                          stroke-linecap="round" />
+                      </g>
+                    </g>
+                  </g>
+                </svg>
+              </div>
+              <pre>
+                <code aria-hidden="true" class="lang-js">
+                  if required_role in interaction.user.roles:
+                  participants = []
+                  async for msg in channel.history():
+                      if msg.id == int(id_du_message):
+                          message = msg
+                      else:
+                          pass
+                  for reaction in message.reactions:
+                      if reaction.emoji == "🎟️":
+                          async for user in reaction.users():
+                              if user.id != 964834575454961698:
+                                  participants.append(user.id)
+                              else:
+                                  pass
+                      else:
+                          pass
+                  winner_id = choice(participants)
+                  winner = get(interaction.guild.members, id=winner_id)
+                  with open("data/giveaways.db", "r", encoding="utf-8") as f:
+                      data = f.read()
+          
+                  giveaways_list = []
+          
+                  for i in data.split("\n"):
+                      giveaways_list.append(i)
+          
+                  giveaways_list.pop(-1)
+          
+                  giveaways_tuples = []
+          
+                  for i in giveaways_list:
+                      a, b, c = i.split("/")[0], i.split("/")[1], i.split("/")[2]
+                      giveaways_tuples.append((a, b, c))
+          
+                  for i in giveaways_tuples:
+                      if i[0] == id_du_message:
+                          cadeau_valeur = i[1]
+                          role_id = i[2]
+                      else:
+                          pass
+                  role = get(interaction.guild.roles, id=int(role_id))
+                  if role.name == "@everyone":
+                      role = "@everyone"
+                  else:
+                      role = role.mention
+                      pass
+                    </code>
+                  </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="home-additional-features" class="page-section">
+      <div class="page-section-inner">
+        <h1 class="title text-center">And More</h1>
+        <p class="title-description text-center">BetterDiscord also offers a wide variety of additional features and
+          utilities.</p>
+        <div id="additional-features" class="flex-container align-center justify-center wrap">
+          <div class="additional-feature" id="additional-feature-emotes">
+            <div class="additional-feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" width="16" height="16">
+                <path fill-rule="evenodd"
+                  d="M1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0zM8 0a8 8 0 100 16A8 8 0 008 0zM5 8a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zM5.32 9.636a.75.75 0 011.038.175l.007.009c.103.118.22.222.35.31.264.178.683.37 1.285.37.602 0 1.02-.192 1.285-.371.13-.088.247-.192.35-.31l.007-.008a.75.75 0 111.222.87l-.614-.431c.614.43.614.431.613.431v.001l-.001.002-.002.003-.005.007-.014.019a1.984 1.984 0 01-.184.213c-.16.166-.338.316-.53.445-.63.418-1.37.638-2.127.629-.946 0-1.652-.308-2.126-.63a3.32 3.32 0 01-.715-.657l-.014-.02-.005-.006-.002-.003v-.002h-.001l.613-.432-.614.43a.75.75 0 01.183-1.044h.001z">
+                </path>
+              </svg>
+            </div>
+            <h5>Twitch Emotes</h5>
+            <p>Use your favorite BTTV and FFZ emotes in discord chat with other BD users.</p>
+          </div>
+          <div class="additional-feature" id="additional-feature-security">
+            <div class="additional-feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" width="16" height="16">
+                <path fill-rule="evenodd"
+                  d="M4 4v2h-.25A1.75 1.75 0 002 7.75v5.5c0 .966.784 1.75 1.75 1.75h8.5A1.75 1.75 0 0014 13.25v-5.5A1.75 1.75 0 0012.25 6H12V4a4 4 0 10-8 0zm6.5 2V4a2.5 2.5 0 00-5 0v2h5zM12 7.5h.25a.25.25 0 01.25.25v5.5a.25.25 0 01-.25.25h-8.5a.25.25 0 01-.25-.25v-5.5a.25.25 0 01.25-.25H12z">
+                </path>
+              </svg>
+            </div>
+            <h5>Security</h5>
+            <p>All plugin updates from our official repo are manually verified for malicious code.</p>
+          </div>
+          <div class="additional-feature" id="additional-feature-editor">
+            <div class="additional-feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" width="16" height="16">
+                <path fill-rule="evenodd"
+                  d="M11.013 1.427a1.75 1.75 0 012.474 0l1.086 1.086a1.75 1.75 0 010 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 01-.927-.928l.929-3.25a1.75 1.75 0 01.445-.758l8.61-8.61zm1.414 1.06a.25.25 0 00-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 000-.354l-1.086-1.086zM11.189 6.25L9.75 4.81l-6.286 6.287a.25.25 0 00-.064.108l-.558 1.953 1.953-.558a.249.249 0 00.108-.064l6.286-6.286z">
+                </path>
+              </svg>
+            </div>
+            <h5>CSS Editor</h5>
+            <p>BetterDiscord comes with a live CSS editor for debugging and basic UI tweaking.</p>
+          </div>
+          <div class="additional-feature" id="additional-feature-utils">
+            <div class="additional-feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" width="16" height="16">
+                <path fill-rule="evenodd"
+                  d="M5.433 2.304A4.494 4.494 0 003.5 6c0 1.598.832 3.002 2.09 3.802.518.328.929.923.902 1.64v.008l-.164 3.337a.75.75 0 11-1.498-.073l.163-3.33c.002-.085-.05-.216-.207-.316A5.996 5.996 0 012 6a5.994 5.994 0 012.567-4.92 1.482 1.482 0 011.673-.04c.462.296.76.827.76 1.423v2.82c0 .082.041.16.11.206l.75.51a.25.25 0 00.28 0l.75-.51A.25.25 0 009 5.282V2.463c0-.596.298-1.127.76-1.423a1.482 1.482 0 011.673.04A5.994 5.994 0 0114 6a5.996 5.996 0 01-2.786 5.068c-.157.1-.209.23-.207.315l.163 3.33a.75.75 0 11-1.498.074l-.164-3.345c-.027-.717.384-1.312.902-1.64A4.496 4.496 0 0012.5 6a4.494 4.494 0 00-1.933-3.696c-.024.017-.067.067-.067.16v2.818a1.75 1.75 0 01-.767 1.448l-.75.51a1.75 1.75 0 01-1.966 0l-.75-.51A1.75 1.75 0 015.5 5.282V2.463c0-.092-.043-.142-.067-.159zm.01-.005z">
+                </path>
+              </svg>
+            </div>
+            <h5>Developer Utils</h5>
+            <p>Features for developers such as utility classes and a Plugin API come out of the box.</p>
+          </div>
+          <div class="additional-feature" id="additional-feature-transparency">
+            <div class="additional-feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" width="16" height="16">
+                <path fill-rule="evenodd"
+                  d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 01-1.484.211c-.04-.282-.163-.547-.37-.847a8.695 8.695 0 00-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.75.75 0 01-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75zM6 15.25a.75.75 0 01.75-.75h2.5a.75.75 0 010 1.5h-2.5a.75.75 0 01-.75-.75zM5.75 12a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-4.5z">
+                </path>
+              </svg>
+            </div>
+            <h5>Transparency</h5>
+            <p>Enable transparency and use a transparent theme for a see-through window.</p>
+          </div>
+          <div class="additional-feature" id="additional-feature-public">
+            <div class="additional-feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" width="16" height="16">
+                <path fill-rule="evenodd"
+                  d="M1.5 2.75a.25.25 0 01.25-.25h8.5a.25.25 0 01.25.25v5.5a.25.25 0 01-.25.25h-3.5a.75.75 0 00-.53.22L3.5 11.44V9.25a.75.75 0 00-.75-.75h-1a.25.25 0 01-.25-.25v-5.5zM1.75 1A1.75 1.75 0 000 2.75v5.5C0 9.216.784 10 1.75 10H2v1.543a1.457 1.457 0 002.487 1.03L7.061 10h3.189A1.75 1.75 0 0012 8.25v-5.5A1.75 1.75 0 0010.25 1h-8.5zM14.5 4.75a.25.25 0 00-.25-.25h-.5a.75.75 0 110-1.5h.5c.966 0 1.75.784 1.75 1.75v5.5A1.75 1.75 0 0114.25 12H14v1.543a1.457 1.457 0 01-2.487 1.03L9.22 12.28a.75.75 0 111.06-1.06l2.22 2.22v-2.19a.75.75 0 01.75-.75h1a.25.25 0 00.25-.25v-5.5z">
+                </path>
+              </svg>
+            </div>
+            <h5>Public Servers</h5>
+            <p>Explore communities from <a rel="noreferrer noopener" target="_blank" href="https://discordservers.com/"
+                class="anchor">DiscordServers.com</a> directly through your client.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <svg class="wave-separator" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1440 400" preserveaspectratio="none">
+      <path
+        d="M0,256L80,256C160,256,320,256,480,224C640,192,800,128,960,133.3C1120,139,1280,213,1360,250.7L1440,288L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"
+        class="accent-path"></path>
+      <path
+        d="M0,160L40,133.3C80,107,160,53,240,64C320,75,400,149,480,202.7C560,256,640,288,720,293.3C800,299,880,277,960,256C1040,235,1120,213,1200,208C1280,203,1360,213,1400,218.7L1440,224L1440,0L1400,0C1360,0,1280,0,1200,0C1120,0,1040,0,960,0C880,0,800,0,720,0C640,0,560,0,480,0C400,0,320,0,240,0C160,0,80,0,40,0L0,0Z"
+        class="accent-path"></path>
+      <path
+        d="M0,96L80,122.7C160,149,320,203,480,192C640,181,800,107,960,80C1120,53,1280,75,1360,85.3L1440,96L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"
+        class="main-path"></path>
+    </svg>
+    <section id="home-download-cta" class="page-section">
+      <div class="page-section-inner">
+        <h1 class="title text-center">Rejoignez-nous dans 𝕷𝖊 𝕽𝖔𝖚𝖓𝖐𝖊𝖗</h1>
+        <p class="title-description text-center">Pensez à lire les règles au préalable</p>
+        <div class="btn-container justify-center align-center">
+          <button class="btn btn-primary" onclick="downloadBetterDiscord()">
+            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 330 330" width="28" height="28">
+              <path fill-rule="evenodd"
+                d="M226.011429,0 L29.9885714,0 C13.4582857,0 0,13.4582857 0,30.1348571 L0,227.913143 C0,244.589714 13.4582857,258.048 29.9885714,258.048 L195.876571,258.048 L188.123429,230.985143 L206.848,248.393143 L224.548571,264.777143 L256,292.571429 L256,30.1348571 C256,13.4582857 242.541714,0 226.011429,0 Z M169.545143,191.049143 C169.545143,191.049143 164.278857,184.758857 159.890286,179.2 C179.053714,173.787429 186.368,161.792 186.368,161.792 C180.370286,165.741714 174.665143,168.521143 169.545143,170.422857 C162.230857,173.494857 155.209143,175.542857 148.333714,176.713143 C134.290286,179.346286 121.417143,178.614857 110.445714,176.566857 C102.107429,174.957714 94.9394286,172.617143 88.9417143,170.276571 C85.5771429,168.96 81.92,167.350857 78.2628571,165.302857 C77.824,165.010286 77.3851429,164.864 76.9462857,164.571429 C76.6537143,164.425143 76.5074286,164.278857 76.3611429,164.132571 C73.728,162.669714 72.2651429,161.645714 72.2651429,161.645714 C72.2651429,161.645714 79.2868571,173.348571 97.8651429,178.907429 C93.4765714,184.466286 88.064,191.049143 88.064,191.049143 C55.7348571,190.025143 43.4468571,168.813714 43.4468571,168.813714 C43.4468571,121.709714 64.512,83.5291429 64.512,83.5291429 C85.5771429,67.7302857 105.618286,68.1691429 105.618286,68.1691429 L107.081143,69.9245714 C80.7497143,77.5314286 68.608,89.088 68.608,89.088 C68.608,89.088 71.8262857,87.3325714 77.2388571,84.8457143 C92.8914286,77.9702857 105.325714,76.0685714 110.445714,75.6297143 C111.323429,75.4834286 112.054857,75.3371429 112.932571,75.3371429 C121.856,74.1668571 131.949714,73.8742857 142.482286,75.0445714 C156.379429,76.6537143 171.300571,80.7497143 186.514286,89.088 C186.514286,89.088 174.957714,78.1165714 150.089143,70.5097143 L152.137143,68.1691429 C152.137143,68.1691429 172.178286,67.7302857 193.243429,83.5291429 C193.243429,83.5291429 214.308571,121.709714 214.308571,168.813714 C214.308571,168.813714 201.874286,190.025143 169.545143,191.049143 Z M101.522286,122.733714 C93.184,122.733714 86.6011429,130.048 86.6011429,138.971429 C86.6011429,147.894857 93.3302857,155.209143 101.522286,155.209143 C109.860571,155.209143 116.443429,147.894857 116.443429,138.971429 C116.589714,130.048 109.860571,122.733714 101.522286,122.733714 M154.916571,122.733714 C146.578286,122.733714 139.995429,130.048 139.995429,138.971429 C139.995429,147.894857 146.724571,155.209143 154.916571,155.209143 C163.254857,155.209143 169.837714,147.894857 169.837714,138.971429 C169.837714,130.048 163.254857,122.733714 154.916571,122.733714"
+                fill="#ffffff" />
+            </svg>
+            <span>Rejoindre</span>
+          </button>
+        </div>
+      </div>
+      <div class="ad-container" id="ad-container"></div>
+      <script>
+
+        window.top.__vm_add = window.top.__vm_add || [];
+
+        //this is a x-browser way to make sure content has loaded.
+
+        (function (success) {
+          if (window.document.readyState !== "loading") {
+            success();
+          } else {
+            window.document.addEventListener("DOMContentLoaded", function () {
+              success();
+            });
+          }
+        })(function () {
+          var placement = document.createElement("div");
+          placement.setAttribute("class", "vm-placement");
+          if (window.innerWidth > 1000) {
+            //load desktop placement
+            placement.setAttribute("data-id", "60f8230dbd5b6c54cf47a3e3");
+          } else {
+            //load mobile placement
+            placement.setAttribute("data-id", "60f82374bd5b6c54cf47a3e7");
+          }
+          document.querySelector("#ad-container").appendChild(placement);
+          window.top.__vm_add.push(placement);
+        });
+
+      </script>
+    </section>
+  </main>
+  <script src="asset//js/footer.js" defer></script>
+  <div class="footer-container">
+    <img class="zere hide-mobile" loading="lazy" src="https://betterdiscord.app//resources/ui/techsupport.webp"
+      alt="Easter egg" />
+    <footer id="section-footer" class="page-section">
+      <div class="page-section-inner">
+        <section id="footer-top" class="flex-container hide-mobile">
+          <div class="footer-column">
+            <a class="footer-logo-wrap" href="https://betterdiscord.app//">
+              <img class="footer-logo" loading="lazy" src="logo_large.png" alt="Footer logo" />
+            </a>
+            <input onkeyup="checkForEasterEgg()" id="easter-egg-input" class="footer-column-item"
+              value="La meilleure communauté" />
+          </div>
+          <div class="footer-column">
+            <h3 class="footer-column-header">Community</h3>
+            <a rel="noreferrer noopener" target="_blank" href="https://discord.gg/0Tmfo5ZbORCRqbAd"
+              class="footer-column-item">
+              <span>Discord</span>
+            </a>
+            <a rel="noreferrer noopener" target="_blank" href="https://twitter.com/_BetterDiscord_"
+              class="footer-column-item">
+              <span>Twitter</span>
+            </a>
+            <a rel="noreferrer noopener" target="_blank" href="https://github.com/BetterDiscord/BetterDiscord"
+              class="footer-column-item">
+              <span>GitHub</span>
+            </a>
+          </div>
+          <div class="footer-column">
+            <h3 class="footer-column-header">Content</h3>
+            <a href="https://betterdiscord.app//themes" class="footer-column-item">
+              <span>Themes</span>
+            </a>
+            <a href="https://betterdiscord.app//plugins" class="footer-column-item">
+              <span>Plugins</span>
+            </a>
+            <a href="https://betterdiscord.app//developers" class="footer-column-item">
+              <span>Developers</span>
+            </a>
+          </div>
+          <div class="footer-column">
+            <h3 class="footer-column-header">Help</h3>
+            <a href="https://betterdiscord.bsa-whitelabel.com/" class="footer-column-item">Advertise With Us</a>
+            <a href="https://docs.betterdiscord.app/" target="_blank" class="footer-column-item">Documentation</a>
+            <a href="https://betterdiscord.app//Privacy" class="footer-column-item">Privacy Policy</a>
+            <a href="https://betterdiscord.app//cdn-cgi/l/email-protection#3756535a5e5977555243435245535e445458455319564747"
+              class="footer-column-item">Contact Us</a>
+            <a href="https://betterdiscord.app/#" class="footer-column-item" onclick="displayPreferenceModal()">Cookie
+              Preferences</a>
+          </div>
+        </section>
+        <section id="footer-bottom" class="flex-container wrap align-center justify-between">
+          <div class="hide-desktop flex-container wrap" id="footer-privacy-container">
+            <div class="footer-privacy text-center">
+              <a href="https://betterdiscord.bsa-whitelabel.com/" class="footer-privacy-item">Advertise With Us</a>
+              <a href="https://betterdiscord.app//Privacy" class="footer-privacy-item">Privacy Policy</a>
+              <a href="https://betterdiscord.app//cdn-cgi/l/email-protection#e786838a8e89a7858293938295838e9484889583c9869797"
+                class="footer-privacy-item">Contact Us</a>
+              <a href="https://betterdiscord.app/#" class="footer-privacy-item"
+                onclick="displayPreferenceModal()">Cookie Preferences</a>
+            </div>
+          </div>
+          <div class="flex-container wrap" id="footer-copyright-container">
+            <div class="footer-copyright text-center">
+              © 2015-2022
+              <a class="anchor" rel="noreferrer noopener" target="_blank"
+                href="https://github.com/BetterDiscord">BetterDiscord Team</a>
+            </div>
+          </div>
+          <div id="footer-social-icons" class="flex-container justify-center wrap">
+            <a rel="noreferrer noopener" target="_blank" href="https://twitter.com/_BetterDiscord_"
+              class="social-icon twitter">
+              <svg class="social-icon-inner" width="32" height="32" viewbox="0 0 20 16" aria-hidden="true">
+                <g fill="none" fill-rule="evenodd">
+                  <path class="foreground-26ym5y da-foreground" fill="currentColor"
+                    d="M1,14.1538462 L1.95,14.1538462 C3.73125,14.1538462 5.5125,13.5384615 6.81875,12.4307692 C5.15625,12.4307692 3.73125,11.2 3.1375,9.6 C3.375,9.6 3.6125,9.72307692 3.85,9.72307692 C4.20625,9.72307692 4.5625,9.72307692 4.91875,9.6 C3.1375,9.23076923 1.7125,7.63076923 1.7125,5.66153846 C2.1875,5.90769231 2.78125,6.15384615 3.49375,6.15384615 C2.425,5.41538462 1.83125,4.18461538 1.83125,2.70769231 C1.83125,1.96923077 2.06875,1.23076923 2.30625,0.615384615 C4.20625,3.07692308 7.05625,4.67692308 10.38125,4.8 C10.2625,4.67692308 10.2625,4.30769231 10.2625,4.06153846 C10.2625,1.84615385 12.04375,0 14.18125,0 C15.25,0 16.31875,0.492307692 17.03125,1.23076923 C17.8625,1.10769231 18.8125,0.738461538 19.525,0.246153846 C19.2875,1.23076923 18.575,1.96923077 17.8625,2.46153846 C18.575,2.46153846 19.2875,2.21538462 20,1.84615385 C19.525,2.70769231 18.8125,3.32307692 18.1,3.93846154 L18.1,4.43076923 C18.1,9.84615385 14.18125,16 6.9375,16 C4.68125,16 2.6625,15.3846154 1,14.1538462 Z">
+                  </path>
+                  <rect width="32" height="32"></rect>
+                </g>
+              </svg>
+            </a>
+            <a rel="noreferrer noopener" target="_blank" href="https://discord.gg/0Tmfo5ZbORCRqbAd"
+              class="social-icon discord">
+              <svg class="social-icon-inner" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 23 23" width="26"
+                height="26">
+                <path fill="currentColor" fill-rule="evenodd"
+                  d="M20.222 0c1.406 0 2.54 1.137 2.607 2.475V24l-2.677-2.273l-1.47-1.338l-1.604-1.398l.67 2.205H3.71c-1.402 0-2.54-1.065-2.54-2.476V2.48C1.17 1.142 2.31.003 3.715.003h16.5L20.222 0zm-6.118 5.683h-.03l-.202.2c2.073.6 3.076 1.537 3.076 1.537c-1.336-.668-2.54-1.002-3.744-1.137c-.87-.135-1.74-.064-2.475 0h-.2c-.47 0-1.47.2-2.81.735c-.467.203-.735.336-.735.336s1.002-1.002 3.21-1.537l-.135-.135s-1.672-.064-3.477 1.27c0 0-1.805 3.144-1.805 7.02c0 0 1 1.74 3.743 1.806c0 0 .4-.533.805-1.002c-1.54-.468-2.14-1.404-2.14-1.404s.134.066.335.2h.06c.03 0 .044.015.06.03v.006c.016.016.03.03.06.03c.33.136.66.27.93.4a8.18 8.18 0 0 0 1.8.536c.93.135 1.996.2 3.21 0c.6-.135 1.2-.267 1.8-.535c.39-.2.87-.4 1.397-.737c0 0-.6.936-2.205 1.404c.33.466.795 1 .795 1c2.744-.06 3.81-1.8 3.87-1.726c0-3.87-1.815-7.02-1.815-7.02c-1.635-1.214-3.165-1.26-3.435-1.26l.056-.02zm.168 4.413c.703 0 1.27.6 1.27 1.335c0 .74-.57 1.34-1.27 1.34c-.7 0-1.27-.6-1.27-1.334c.002-.74.573-1.338 1.27-1.338zm-4.543 0c.7 0 1.266.6 1.266 1.335c0 .74-.57 1.34-1.27 1.34c-.7 0-1.27-.6-1.27-1.334c0-.74.57-1.338 1.27-1.338z" />
+              </svg>
+            </a>
+            <a rel="noreferrer noopener" target="_blank" href="https://github.com/BetterDiscord/BetterDiscord/"
+              class="social-icon github">
+              <svg class="social-icon-inner" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" width="26"
+                height="26">
+                <path fill="currentColor" fill-rule="evenodd"
+                  d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+                </path>
+              </svg>
+            </a>
+          </div>
+        </section>
+      </div>
+    </footer>
+  </div>
+  <script data-cfasync="false" src="asset//cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script>
+    window.downloads = {
+      count: 16680399,
+      frequency: 3060.9332536319284,
+      measuredAt: "2022-10-19T16:05:39.7227267Z"
+    };
+  </script>
+  <link rel="stylesheet" href="asset//css/overlayScrollbars.min.css" />
+  <link rel="stylesheet" href="asset//css/tagify.min.css" />
+  <script src="asset//js/vendor/popper.min.js"></script>
+  <script src="asset//js/vendor/tippy-bundle.umd.min.js"></script>
+  <script>
+    tippy('.sign-in-gate', {
+      content: 'You must sign in to perform this action.',
+      theme: 'default',
+    });
+  </script>
+  <script defer src="asset//beacon.min.js/v652eace1692a40cfa3763df669d7439c1639079717194"
+    integrity="sha512-Gi7xpJR8tSkrpF7aordPZQlW2DLtzUlZcumS8dMQjwDHEnw9I7ZLyiOj/6tZStRBGtGgN6ceN6cMH8z7etPGlw=="
+    data-cf-beacon='{"rayId":"75cad3a2df9e8cb7","version":"2022.10.3","r":1,"token":"5a42eaf24d2a4ecf87c4205b7ebeb78c","si":100}'
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
